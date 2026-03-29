@@ -1,0 +1,9 @@
+.env
+.openclaw-deploy.json
+*.zip
+__pycache__/
+.venv/
+node_modules/
+teams-app/*.png
+dist/
+.python-version

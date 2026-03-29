@@ -1,0 +1,11 @@
+{
+  "channels": {
+    "msteams": {
+      "enabled": true,
+      "webhook": {
+        "port": 3978,
+        "path": "/api/messages"
+      }
+    }
+  }
+}

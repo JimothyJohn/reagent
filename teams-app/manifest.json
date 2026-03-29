@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.23/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.23",
+  "version": "1.0.0",
+  "id": "${{MSTEAMS_APP_ID}}",
+  "name": {
+    "short": "Reagent",
+    "full": "Reagent - OpenClaw Teams Bot"
+  },
+  "developer": {
+    "name": "Reagent",
+    "websiteUrl": "https://github.com/nkuhn-vmw/reagent",
+    "privacyUrl": "https://github.com/nkuhn-vmw/reagent",
+    "termsOfUseUrl": "https://github.com/nkuhn-vmw/reagent"
+  },
+  "description": {
+    "short": "Reagent AI assistant in Teams",
+    "full": "An OpenClaw-powered AI assistant accessible via Microsoft Teams channels and direct messages."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#5B6DEF",
+  "bots": [
+    {
+      "botId": "${{MSTEAMS_APP_ID}}",
+      "scopes": ["personal", "team", "groupChat"],
+      "supportsFiles": true
+    }
+  ],
+  "webApplicationInfo": {
+    "id": "${{MSTEAMS_APP_ID}}"
+  },
+  "authorization": {
+    "permissions": {
+      "resourceSpecific": [
+        { "name": "ChannelMessage.Read.Group", "type": "Application" },
+        { "name": "ChannelMessage.Send.Group", "type": "Application" },
+        { "name": "Member.Read.Group", "type": "Application" },
+        { "name": "ChatMessage.Read.Chat", "type": "Application" }
+      ]
+    }
+  }
+}

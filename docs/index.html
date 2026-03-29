@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reagent — Teams Bot Setup Guide</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --accent: #5B6DEF;
+      --accent-glow: rgba(91,109,239,0.25);
+      --text: #e0e0e8;
+      --muted: #7a7a8e;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --code-bg: #1a1a28;
+      --card-hover: #16162a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated gradient background */
+    .bg-glow {
+      position: fixed;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 40%, rgba(91,109,239,0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 60%, rgba(52,211,153,0.05) 0%, transparent 50%);
+      animation: drift 20s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes drift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-5%, 3%) rotate(2deg); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Hero */
+    header {
+      text-align: center;
+      padding: 4rem 0 3rem;
+    }
+    .logo {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--success));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .tagline {
+      color: var(--muted);
+      font-size: 1.15rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Architecture diagram */
+    .arch {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin: 2.5rem 0 3rem;
+      flex-wrap: wrap;
+    }
+    .arch-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.4rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: default;
+      min-width: 130px;
+    }
+    .arch-node:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .arch-node .icon { font-size: 1.8rem; display: block; margin-bottom: 0.3rem; }
+    .arch-node .label { font-size: 0.85rem; font-weight: 600; }
+    .arch-node .sub { font-size: 0.7rem; color: var(--muted); }
+    .arch-arrow {
+      font-size: 1.5rem;
+      color: var(--muted);
+      padding: 0 0.5rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; color: var(--accent); }
+    }
+
+    /* Steps */
+    .steps { counter-reset: step; }
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 1.2rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .step:hover { border-color: var(--accent); background: var(--card-hover); }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      top: 1.8rem; left: 2rem;
+      width: 28px; height: 28px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700;
+    }
+    .step-header {
+      padding-left: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .step-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .step-toggle {
+      font-size: 1.4rem;
+      color: var(--muted);
+      transition: transform 0.3s;
+      user-select: none;
+    }
+    .step.open .step-toggle { transform: rotate(45deg); color: var(--accent); }
+    .step-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+      padding-left: 2.5rem;
+    }
+    .step.open .step-body {
+      max-height: 800px;
+      padding-top: 1rem;
+    }
+    .step-body p { color: var(--muted); margin-bottom: 0.8rem; font-size: 0.92rem; }
+
+    code, pre {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.85rem;
+    }
+    code {
+      background: var(--code-bg);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      color: var(--success);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      margin: 0.5rem 0 1rem;
+      position: relative;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem; right: 0.5rem;
+      background: var(--border);
+      border: none;
+      color: var(--muted);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: var(--accent); color: #fff; }
+    .copy-btn.copied { background: var(--success); color: #fff; }
+
+    /* Cost table */
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+    }
+    .cost-table th {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .cost-table td {
+      padding: 0.5rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .cost-table tr:last-child td {
+      border-bottom: 2px solid var(--accent);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Status badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .badge-free { color: var(--success); border-color: var(--success); background: rgba(52,211,153,0.08); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 3rem 0 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Env builder */
+    .env-builder {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem;
+      margin: 1rem 0;
+    }
+    .env-builder label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+      margin-top: 0.8rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .env-builder label:first-child { margin-top: 0; }
+    .env-builder input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.7rem;
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .env-builder input:focus { border-color: var(--accent); }
+    .env-builder input::placeholder { color: var(--muted); opacity: 0.5; }
+    .gen-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .gen-btn:hover { box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-1px); }
+    #env-output {
+      margin-top: 0.8rem;
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+      .logo { font-size: 2.4rem; }
+      .arch { gap: 0.3rem; }
+      .arch-node { min-width: 90px; padding: 0.7rem; }
+      .step { padding: 1.2rem; }
+      .step::before { top: 1.2rem; left: 1.2rem; }
+      .step-header { padding-left: 2.2rem; }
+      .step-body { padding-left: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="container">
+
+    <header>
+      <div class="logo">reagent</div>
+      <p class="tagline">OpenClaw + Microsoft Teams in 5 minutes</p>
+    </header>
+
+    <!-- Architecture Diagram -->
+    <div class="arch">
+      <div class="arch-node">
+        <span class="icon">💬</span>
+        <span class="label">Teams</span>
+        <span class="sub">Your channels</span>
+      </div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node">
+        <span class="icon">☁️</span>
+        <span class="label">Azure Bot</span>
+        <span class="sub">F0 free tier</span>
+      </div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node" style="border-color: var(--accent);">
+        <span class="icon">⚡</span>
+        <span class="label">OpenClaw</span>
+        <span class="sub">B1s Linux VM</span>
+      </div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node">
+        <span class="icon">🤖</span>
+        <span class="label">AI Agent</span>
+        <span class="sub">Any provider</span>
+      </div>
+    </div>
+
+    <!-- Setup Steps -->
+    <div class="steps">
+
+      <div class="step open">
+        <div class="step-header" onclick="toggle(this.parentElement)">
+          <span class="step-title">Clone & configure</span>
+          <span class="step-toggle">+</span>
+        </div>
+        <div class="step-body">
+          <pre><code>git clone https://github.com/nkuhn-vmw/reagent.git
+cd reagent
+cp .env.example .env</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>Open <code>.env</code> and fill in your Azure credentials (see Step 2 if you don't have them yet).</p>
+          <div class="env-builder">
+            <label>MSTEAMS_APP_ID</label>
+            <input type="text" id="env-appid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            <label>MSTEAMS_APP_PASSWORD</label>
+            <input type="password" id="env-apppw" placeholder="your app secret">
+            <label>MSTEAMS_TENANT_ID</label>
+            <input type="text" id="env-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            <label>VM_HOST</label>
+            <input type="text" id="env-vmhost" placeholder="your-vm.eastus.cloudapp.azure.com">
+            <label>VM_IP</label>
+            <input type="text" id="env-vmip" placeholder="x.x.x.x">
+            <button class="gen-btn" onclick="generateEnv()">Generate .env</button>
+            <pre id="env-output"><code id="env-code"></code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggle(this.parentElement)">
+          <span class="step-title">Create Azure resources</span>
+          <span class="step-toggle">+</span>
+        </div>
+        <div class="step-body">
+          <p>Create a resource group, a B1s Linux VM, and an Azure Bot. This is the one-time infrastructure step.</p>
+          <pre><code># Resource group
+az group create --name reagent-rg --location eastus
+
+# Linux VM (Ubuntu 24.04, ~$7.59/mo)
+az vm create \
+  --resource-group reagent-rg \
+  --name reagent-vm \
+  --image Ubuntu2404 \
+  --size Standard_B1s \
+  --admin-username reagent \
+  --generate-ssh-keys
+
+# Open bot port
+az network nsg rule create \
+  --resource-group reagent-rg \
+  --nsg-name reagent-vmNSG \
+  --name allow-bot \
+  --priority 1020 \
+  --destination-port-ranges 3978 \
+  --protocol Tcp --access Allow --direction Inbound
+
+# Register Azure AD app
+az ad app create --display-name "reagent-teams-bot" \
+  --sign-in-audience AzureADMyOrg
+
+# Create secret (save the password!)
+az ad app credential reset --id &lt;APP_ID&gt;
+
+# Create bot service (free tier)
+az bot create \
+  --resource-group reagent-rg \
+  --name reagent-teams-bot \
+  --app-type SingleTenant \
+  --appid &lt;APP_ID&gt; \
+  --tenant-id &lt;TENANT_ID&gt; \
+  --endpoint "https://&lt;VM_DNS&gt;:3978/api/messages"
+
+# Enable Teams channel
+az bot msteams create \
+  --resource-group reagent-rg \
+  --name reagent-teams-bot</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggle(this.parentElement)">
+          <span class="step-title">Install OpenClaw on your VM</span>
+          <span class="step-toggle">+</span>
+        </div>
+        <div class="step-body">
+          <p>SSH into the VM and install Node.js + OpenClaw globally.</p>
+          <pre><code>ssh reagent@&lt;VM_IP&gt;
+
+# Install Node.js 22
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install OpenClaw
+sudo npm install -g openclaw@latest</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggle(this.parentElement)">
+          <span class="step-title">Deploy config & start gateway</span>
+          <span class="step-toggle">+</span>
+        </div>
+        <div class="step-body">
+          <p>Use the built-in CLI to push your config (with secrets from <code>.env</code>) to the VM and restart.</p>
+          <pre><code>python main.py deploy</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>Or check status / tail logs:</p>
+          <pre><code>python main.py status
+python main.py logs</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggle(this.parentElement)">
+          <span class="step-title">Sideload into Teams</span>
+          <span class="step-toggle">+</span>
+        </div>
+        <div class="step-body">
+          <p>Package the Teams manifest and upload it.</p>
+          <pre><code># Build the zip (substitutes your App ID from .env)
+./scripts/package-teams-app.sh</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>Then in Microsoft Teams:</p>
+          <p><strong>Apps</strong> → <strong>Manage your apps</strong> → <strong>Upload a custom app</strong> → select <code>reagent-teams-app.zip</code></p>
+          <p>Find the <strong>Reagent</strong> bot in your app list, add it to a channel or DM it directly.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Cost breakdown -->
+    <h2 style="margin: 2.5rem 0 1rem; font-size: 1.3rem;">Monthly cost <span class="badge badge-free">~$12.78/mo</span></h2>
+    <table class="cost-table">
+      <thead>
+        <tr><th>Resource</th><th>SKU</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Linux VM</td><td>Standard_B1s</td><td>$7.59</td></tr>
+        <tr><td>OS Disk</td><td>30 GiB HDD</td><td>$1.54</td></tr>
+        <tr><td>Public IP</td><td>Standard static</td><td>$3.65</td></tr>
+        <tr><td>Azure Bot</td><td>F0 free</td><td>$0.00</td></tr>
+        <tr><td><strong>Total</strong></td><td></td><td><strong>$12.78</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.5rem;">
+      Deallocate the VM when not in use to reduce to ~$5.19/mo. Or delete the resource group to stop all charges.
+    </p>
+
+    <footer>
+      Built with <a href="https://docs.openclaw.ai">OpenClaw</a> ·
+      <a href="https://github.com/nkuhn-vmw/reagent">GitHub</a>
+    </footer>
+
+  </div>
+
+  <script>
+    function toggle(el) {
+      el.classList.toggle('open');
+    }
+
+    function copyCode(btn) {
+      const pre = btn.closest('pre');
+      const code = pre.querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    function generateEnv() {
+      const lines = [
+        '# Azure Bot credentials (DO NOT COMMIT)',
+        `MSTEAMS_APP_ID=${document.getElementById('env-appid').value || '<your-app-id>'}`,
+        `MSTEAMS_APP_PASSWORD=${document.getElementById('env-apppw').value || '<your-app-password>'}`,
+        `MSTEAMS_TENANT_ID=${document.getElementById('env-tenant').value || '<your-tenant-id>'}`,
+        '',
+        '# VM connection',
+        `VM_HOST=${document.getElementById('env-vmhost').value || '<your-vm>.eastus.cloudapp.azure.com'}`,
+        `VM_IP=${document.getElementById('env-vmip').value || '<your-vm-ip>'}`,
+        'VM_USER=reagent',
+        '',
+        '# Azure resource identifiers',
+        'RESOURCE_GROUP=reagent-rg',
+        'BOT_NAME=reagent-teams-bot',
+      ];
+      const output = document.getElementById('env-output');
+      document.getElementById('env-code').textContent = lines.join('\n');
+      output.style.display = 'block';
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '1' && e.key <= '5') {
+        const steps = document.querySelectorAll('.step');
+        const idx = parseInt(e.key) - 1;
+        if (steps[idx]) {
+          steps[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          steps[idx].classList.add('open');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
