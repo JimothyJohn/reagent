@@ -1,5 +1,9 @@
 # reagent
 
+<p align="center">
+  <img src="docs/hero.svg" alt="reagent architecture" width="700">
+</p>
+
 Self-hosted AI assistant for Microsoft Teams, powered by [OpenClaw](https://docs.openclaw.ai).
 
 Deploys an OpenClaw gateway on an Azure B1s Linux VM (~$12.78/mo) with a Teams channel integration so you can chat with an AI agent directly in your Teams channels and DMs.
