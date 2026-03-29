@@ -4,37 +4,47 @@
   <img src="docs/hero.svg" alt="reagent architecture" width="700">
 </p>
 
-Self-hosted AI assistant for Microsoft Teams, powered by [OpenClaw](https://docs.openclaw.ai).
+Self-hosted AI assistant for Microsoft Teams, powered by [OpenClaw](https://docs.openclaw.ai). Deploys on an Azure B1s Linux VM with nginx + Let's Encrypt for HTTPS, using Anthropic Claude as the AI model.
 
-Deploys an OpenClaw gateway on an Azure B1s Linux VM (~$12.78/mo) with a Teams channel integration so you can chat with an AI agent directly in your Teams channels and DMs.
+## Prerequisites
+
+- **Azure subscription** with permissions to create resources
+- **Azure CLI** (`az`) installed and logged in (`az login`)
+- **SSH key** at `~/.ssh/id_ed25519` or `~/.ssh/id_rsa`
+- **Anthropic API key** ([console.anthropic.com](https://console.anthropic.com))
+- **Python 3.12+** and **[uv](https://docs.astral.sh/uv/)**
 
 ## Quick start
 
 ```bash
 git clone https://github.com/nkuhn-vmw/reagent.git
 cd reagent
-cp .env.example .env   # fill in your Azure credentials
-python main.py deploy   # push config to VM & restart
-./scripts/package-teams-app.sh  # build Teams app zip
+uv run python main.py setup    # provisions Azure infra + VM (~5 min)
+./scripts/package-teams-app.sh  # builds Teams app zip
 ```
 
-Then sideload `reagent-teams-app.zip` in Teams: **Apps > Manage your apps > Upload a custom app**.
+Then sideload `reagent-teams-app.zip` in Teams: **Apps > Manage your apps > Upload a custom app** > select `reagent-teams-app.zip`.
 
-## Setup guide
-
-See the interactive setup guide at **[docs/index.html](docs/index.html)** or the [OpenClaw Teams docs](https://docs.openclaw.ai/channels/msteams).
+> **Note:** Requires a Microsoft 365 Business or Education account. Custom app uploading must be enabled in [Teams Admin Center](https://admin.teams.microsoft.com) > Teams apps > Setup policies > Global > Upload custom apps > On.
 
 ## CLI
 
 ```bash
-python main.py status   # check if gateway is running
-python main.py deploy   # push config & restart
-python main.py logs     # tail gateway logs
+uv run python main.py setup    # provision Azure infra + VM
+uv run python main.py deploy   # push config & secrets to VM, restart gateway
+uv run python main.py status   # check if gateway is running
+uv run python main.py logs     # tail gateway logs
 ```
+
+## Configuration
+
+- **`openclaw.json`** — OpenClaw gateway config (model, system prompt, Teams channel settings)
+- **`.env`** — secrets (API keys, bot credentials); copy from `.env.example`
+- On `deploy`, secrets from `.env` are injected into the gateway config on the VM
 
 ## Costs
 
-~$12.78/mo for the Azure VM + static IP. Bot service is free. See [COSTS.md](COSTS.md).
+~$12.78/mo for the Azure VM + static IP. Bot Service is free. See [COSTS.md](COSTS.md) for a full breakdown.
 
 ## License
 

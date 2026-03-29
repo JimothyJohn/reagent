@@ -1,11 +1,21 @@
 {
+  "gateway": {
+    "mode": "local",
+    "controlUi": {
+      "enabled": false
+    }
+  },
   "channels": {
     "msteams": {
       "enabled": true,
       "webhook": {
         "port": 3978,
         "path": "/api/messages"
-      }
+      },
+      "dmPolicy": "open",
+      "allowFrom": ["*"],
+      "groupPolicy": "open",
+      "groupAllowFrom": ["*"]
     }
   }
 }

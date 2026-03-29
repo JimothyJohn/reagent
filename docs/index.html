@@ -15,6 +15,7 @@
       --muted: #7a7a8e;
       --success: #34d399;
       --warn: #fbbf24;
+      --danger: #ef4444;
       --code-bg: #1a1a28;
       --card-hover: #16162a;
     }
@@ -161,10 +162,12 @@
       padding-left: 2.5rem;
     }
     .step.open .step-body {
-      max-height: 800px;
+      max-height: 2000px;
       padding-top: 1rem;
     }
     .step-body p { color: var(--muted); margin-bottom: 0.8rem; font-size: 0.92rem; }
+    .step-body ul { color: var(--muted); margin: 0 0 0.8rem 1.2rem; font-size: 0.92rem; }
+    .step-body ul li { margin-bottom: 0.3rem; }
 
     code, pre {
       font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
@@ -205,6 +208,54 @@
     }
     .copy-btn:hover { background: var(--accent); color: #fff; }
     .copy-btn.copied { background: var(--success); color: #fff; }
+
+    /* Callout boxes */
+    .callout {
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .callout-warn {
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.25);
+      color: var(--warn);
+    }
+    .callout-danger {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.25);
+      color: var(--danger);
+    }
+    .callout-info {
+      background: rgba(91,109,239,0.08);
+      border: 1px solid rgba(91,109,239,0.25);
+      color: var(--accent);
+    }
+    .callout strong { color: inherit; }
+
+    /* What it does list */
+    .auto-list {
+      list-style: none;
+      margin: 0.5rem 0 1rem 0;
+      padding: 0;
+    }
+    .auto-list li {
+      padding: 0.35rem 0 0.35rem 1.6rem;
+      position: relative;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .auto-list li::before {
+      content: '';
+      position: absolute;
+      left: 0.3rem;
+      top: 0.7rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
 
     /* Cost table */
     .cost-table {
@@ -303,6 +354,18 @@
       margin-top: 0.8rem;
       display: none;
     }
+    .env-builder-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      font-style: italic;
+    }
+
+    /* Section headings */
+    .section-heading {
+      margin: 2.5rem 0 1rem;
+      font-size: 1.3rem;
+    }
 
     @media (max-width: 600px) {
       .container { padding: 1rem; }
@@ -321,141 +384,134 @@
   <div class="container">
 
     <header>
-      <img src="hero.svg" alt="Reagent architecture — Teams to Azure to OpenClaw to AI Agent" style="width:100%; max-width:800px; border-radius:16px; margin-bottom:1rem;">
+      <img src="hero.svg" alt="Reagent architecture — Teams to Azure to OpenClaw to AI Agent" style="width:100%; max-width:800px; border-radius:16px; margin-bottom:1.5rem;">
+      <p class="tagline">Deploy an AI agent to Microsoft Teams in minutes, powered by OpenClaw.</p>
     </header>
 
     <!-- Setup Steps -->
     <div class="steps">
 
+      <!-- Step 1: Prerequisites -->
       <div class="step open">
         <div class="step-header" onclick="toggle(this.parentElement)">
-          <span class="step-title">Clone & configure</span>
+          <span class="step-title">Prerequisites</span>
           <span class="step-toggle">+</span>
         </div>
         <div class="step-body">
-          <pre><code>git clone https://github.com/nkuhn-vmw/reagent.git
-cd reagent
-cp .env.example .env</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
-          <p>Open <code>.env</code> and fill in your Azure credentials (see Step 2 if you don't have them yet).</p>
-          <div class="env-builder">
-            <label>MSTEAMS_APP_ID</label>
-            <input type="text" id="env-appid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-            <label>MSTEAMS_APP_PASSWORD</label>
-            <input type="password" id="env-apppw" placeholder="your app secret">
-            <label>MSTEAMS_TENANT_ID</label>
-            <input type="text" id="env-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-            <label>VM_HOST</label>
-            <input type="text" id="env-vmhost" placeholder="your-vm.eastus.cloudapp.azure.com">
-            <label>VM_IP</label>
-            <input type="text" id="env-vmip" placeholder="x.x.x.x">
-            <button class="gen-btn" onclick="generateEnv()">Generate .env</button>
-            <pre id="env-output"><code id="env-code"></code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>Make sure you have the following before starting:</p>
+          <ul>
+            <li><strong style="color:var(--text)">Azure subscription</strong> + Azure CLI installed and logged in (<code>az login</code>)</li>
+            <li><strong style="color:var(--text)">SSH key pair</strong> &mdash; run <code>ssh-keygen</code> if you don't have one at <code>~/.ssh/id_rsa.pub</code></li>
+            <li><strong style="color:var(--text)">Anthropic API key</strong> &mdash; get one from <a href="https://console.anthropic.com" style="color:var(--accent)">console.anthropic.com</a></li>
+            <li><strong style="color:var(--text)">Python 3.12+</strong> and <a href="https://docs.astral.sh/uv/" style="color:var(--accent)">uv</a> (Python package manager)</li>
+            <li><strong style="color:var(--text)">Microsoft 365 Business or Education account</strong></li>
+          </ul>
+          <div class="callout callout-danger">
+            <strong>Important:</strong> Personal and free Microsoft Teams accounts do NOT support custom app sideloading. You need a Microsoft 365 Business Basic (or higher) or Education plan to upload custom bots.
           </div>
         </div>
       </div>
 
+      <!-- Step 2: Clone & configure -->
       <div class="step">
         <div class="step-header" onclick="toggle(this.parentElement)">
-          <span class="step-title">Create Azure resources</span>
+          <span class="step-title">Clone &amp; configure</span>
           <span class="step-toggle">+</span>
         </div>
         <div class="step-body">
-          <p>Create a resource group, a B1s Linux VM, and an Azure Bot. This is the one-time infrastructure step.</p>
-          <pre><code># Resource group
-az group create --name reagent-rg --location eastus
-
-# Linux VM (Ubuntu 24.04, ~$7.59/mo)
-az vm create \
-  --resource-group reagent-rg \
-  --name reagent-vm \
-  --image Ubuntu2404 \
-  --size Standard_B1s \
-  --admin-username reagent \
-  --generate-ssh-keys
-
-# Open bot port
-az network nsg rule create \
-  --resource-group reagent-rg \
-  --nsg-name reagent-vmNSG \
-  --name allow-bot \
-  --priority 1020 \
-  --destination-port-ranges 3978 \
-  --protocol Tcp --access Allow --direction Inbound
-
-# Register Azure AD app
-az ad app create --display-name "reagent-teams-bot" \
-  --sign-in-audience AzureADMyOrg
-
-# Create secret (save the password!)
-az ad app credential reset --id &lt;APP_ID&gt;
-
-# Create bot service (free tier)
-az bot create \
-  --resource-group reagent-rg \
-  --name reagent-teams-bot \
-  --app-type SingleTenant \
-  --appid &lt;APP_ID&gt; \
-  --tenant-id &lt;TENANT_ID&gt; \
-  --endpoint "https://&lt;VM_DNS&gt;:3978/api/messages"
-
-# Enable Teams channel
-az bot msteams create \
-  --resource-group reagent-rg \
-  --name reagent-teams-bot</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <pre><code>git clone https://github.com/nkuhn-vmw/reagent.git
+cd reagent</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>That's it for now &mdash; the automated setup in the next step will generate your <code>.env</code> file with all required credentials.</p>
         </div>
       </div>
 
+      <!-- Step 3: Automated setup -->
       <div class="step">
         <div class="step-header" onclick="toggle(this.parentElement)">
-          <span class="step-title">Install OpenClaw on your VM</span>
+          <span class="step-title">Run automated setup</span>
           <span class="step-toggle">+</span>
         </div>
         <div class="step-body">
-          <p>SSH into the VM and install Node.js + OpenClaw globally.</p>
-          <pre><code>ssh reagent@&lt;VM_IP&gt;
-
-# Install Node.js 22
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install OpenClaw
-sudo npm install -g openclaw@latest</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>A single command provisions all Azure infrastructure and configures the bot end-to-end:</p>
+          <pre><code>uv run python main.py setup</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>You'll be prompted for your <strong style="color:var(--text)">Anthropic API key</strong> if it isn't already in <code>.env</code>. The command handles everything else automatically:</p>
+          <ul class="auto-list">
+            <li>Creates Azure resource group, VM, and networking (NSG rules)</li>
+            <li>Registers an Azure AD app + service principal + bot service</li>
+            <li>Installs Node.js, OpenClaw, and nginx on the VM</li>
+            <li>Configures HTTPS with Let's Encrypt (TLS is required by Teams)</li>
+            <li>Deploys the OpenClaw gateway configuration</li>
+            <li>Writes all credentials to <code>.env</code></li>
+          </ul>
+          <div class="callout callout-info">
+            <strong>HTTPS is mandatory.</strong> Microsoft Teams requires a valid TLS certificate on your bot endpoint. The setup script handles this automatically using Let's Encrypt and nginx as a reverse proxy.
+          </div>
+          <p>After setup completes, you can verify the deployment:</p>
+          <pre><code>uv run python main.py status
+uv run python main.py logs</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
         </div>
       </div>
 
+      <!-- Step 4: Enable sideloading -->
       <div class="step">
         <div class="step-header" onclick="toggle(this.parentElement)">
-          <span class="step-title">Deploy config & start gateway</span>
+          <span class="step-title">Enable custom app sideloading</span>
           <span class="step-toggle">+</span>
         </div>
         <div class="step-body">
-          <p>Use the built-in CLI to push your config (with secrets from <code>.env</code>) to the VM and restart.</p>
-          <pre><code>python main.py deploy</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
-          <p>Or check status / tail logs:</p>
-          <pre><code>python main.py status
-python main.py logs</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>Your Teams tenant must allow custom app uploads. A Teams admin needs to enable this:</p>
+          <ol style="color:var(--muted); margin: 0 0 0.8rem 1.2rem; font-size:0.92rem;">
+            <li style="margin-bottom:0.4rem">Go to <a href="https://admin.teams.microsoft.com" style="color:var(--accent)">admin.teams.microsoft.com</a></li>
+            <li style="margin-bottom:0.4rem">Navigate to <strong style="color:var(--text)">Teams apps</strong> &rarr; <strong style="color:var(--text)">Setup policies</strong> &rarr; <strong style="color:var(--text)">Global (Org-wide default)</strong></li>
+            <li style="margin-bottom:0.4rem">Toggle <strong style="color:var(--text)">Upload custom apps</strong> to <strong style="color:var(--success)">On</strong></li>
+            <li>Save and wait a few minutes for the policy to propagate</li>
+          </ol>
+          <div class="callout callout-warn">
+            <strong>Propagation delay:</strong> Policy changes can take up to 24 hours to take effect, though it usually happens within a few minutes.
+          </div>
         </div>
       </div>
 
+      <!-- Step 5: Package & sideload -->
       <div class="step">
         <div class="step-header" onclick="toggle(this.parentElement)">
-          <span class="step-title">Sideload into Teams</span>
+          <span class="step-title">Package &amp; sideload the Teams app</span>
           <span class="step-toggle">+</span>
         </div>
         <div class="step-body">
-          <p>Package the Teams manifest and upload it.</p>
-          <pre><code># Build the zip (substitutes your App ID from .env)
-./scripts/package-teams-app.sh</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
-          <p>Then in Microsoft Teams:</p>
-          <p><strong>Apps</strong> → <strong>Manage your apps</strong> → <strong>Upload a custom app</strong> → select <code>reagent-teams-app.zip</code></p>
-          <p>Find the <strong>Reagent</strong> bot in your app list, add it to a channel or DM it directly.</p>
+          <p>Build the Teams app manifest zip (this injects your App ID from <code>.env</code>):</p>
+          <pre><code>./scripts/package-teams-app.sh</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+          <p>Then upload it to Teams:</p>
+          <ol style="color:var(--muted); margin: 0 0 0.8rem 1.2rem; font-size:0.92rem;">
+            <li style="margin-bottom:0.4rem">Open Microsoft Teams</li>
+            <li style="margin-bottom:0.4rem">Click <strong style="color:var(--text)">Apps</strong> in the sidebar</li>
+            <li style="margin-bottom:0.4rem">Click <strong style="color:var(--text)">Manage your apps</strong> &rarr; <strong style="color:var(--text)">Upload a custom app</strong></li>
+            <li>Select the generated <code>reagent-teams-app.zip</code> file</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Step 6: Chat -->
+      <div class="step">
+        <div class="step-header" onclick="toggle(this.parentElement)">
+          <span class="step-title">Chat with the bot</span>
+          <span class="step-toggle">+</span>
+        </div>
+        <div class="step-body">
+          <p>Find <strong style="color:var(--text)">Reagent</strong> in your Teams app list. You can:</p>
+          <ul>
+            <li>Send it a direct message for 1:1 conversation</li>
+            <li>Add it to a channel so your whole team can interact with it</li>
+          </ul>
+          <p>The bot connects to Claude via your Anthropic API key. To redeploy after config changes:</p>
+          <pre><code>uv run python main.py deploy</code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
         </div>
       </div>
 
     </div>
 
     <!-- Cost breakdown -->
-    <h2 style="margin: 2.5rem 0 1rem; font-size: 1.3rem;">Monthly cost <span class="badge badge-free">~$12.78/mo</span></h2>
+    <h2 class="section-heading">Monthly cost <span class="badge badge-free">~$12.78/mo</span></h2>
     <table class="cost-table">
       <thead>
         <tr><th>Resource</th><th>SKU</th><th>Cost</th></tr>
@@ -469,8 +525,33 @@ python main.py logs</code><button class="copy-btn" onclick="copyCode(this)">copy
       </tbody>
     </table>
     <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.5rem;">
-      Deallocate the VM when not in use to reduce to ~$5.19/mo. Or delete the resource group to stop all charges.
+      Deallocate the VM when not in use to reduce to ~$5.19/mo. Or delete the resource group (<code>az group delete --name reagent-rg</code>) to stop all charges.
+      Anthropic API usage is billed separately based on token consumption.
     </p>
+
+    <!-- Manual setup env builder -->
+    <h2 class="section-heading">Manual setup</h2>
+    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">
+      If you prefer to provision Azure resources yourself instead of using <code>uv run python main.py setup</code>,
+      you can create a <code>.env</code> file manually. Fill in the values below and click <strong style="color:var(--text)">Generate .env</strong> to produce the file contents.
+    </p>
+    <div class="env-builder">
+      <p class="env-builder-note">All fields are required for manual setup. The automated setup command generates these for you.</p>
+      <label>ANTHROPIC_API_KEY</label>
+      <input type="password" id="env-apikey" placeholder="sk-ant-...">
+      <label>MSTEAMS_APP_ID</label>
+      <input type="text" id="env-appid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      <label>MSTEAMS_APP_PASSWORD</label>
+      <input type="password" id="env-apppw" placeholder="your app secret">
+      <label>MSTEAMS_TENANT_ID</label>
+      <input type="text" id="env-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      <label>VM_HOST</label>
+      <input type="text" id="env-vmhost" placeholder="your-vm.eastus.cloudapp.azure.com">
+      <label>VM_IP</label>
+      <input type="text" id="env-vmip" placeholder="x.x.x.x">
+      <button class="gen-btn" onclick="generateEnv()">Generate .env</button>
+      <pre id="env-output"><code id="env-code"></code><button class="copy-btn" onclick="copyCode(this)">copy</button></pre>
+    </div>
 
     <footer>
       Built with <a href="https://docs.openclaw.ai">OpenClaw</a> ·
@@ -499,6 +580,12 @@ python main.py logs</code><button class="copy-btn" onclick="copyCode(this)">copy
 
     function generateEnv() {
       const lines = [
+        '# Reagent .env — manual setup',
+        '# Generated by the setup guide',
+        '',
+        '# Anthropic API key (powers the AI agent)',
+        `ANTHROPIC_API_KEY=${document.getElementById('env-apikey').value || '<your-anthropic-api-key>'}`,
+        '',
         '# Azure Bot credentials (DO NOT COMMIT)',
         `MSTEAMS_APP_ID=${document.getElementById('env-appid').value || '<your-app-id>'}`,
         `MSTEAMS_APP_PASSWORD=${document.getElementById('env-apppw').value || '<your-app-password>'}`,
@@ -518,9 +605,9 @@ python main.py logs</code><button class="copy-btn" onclick="copyCode(this)">copy
       output.style.display = 'block';
     }
 
-    // Keyboard nav
+    // Keyboard nav: press 1-6 to jump to that step
     document.addEventListener('keydown', (e) => {
-      if (e.key >= '1' && e.key <= '5') {
+      if (e.key >= '1' && e.key <= '6') {
         const steps = document.querySelectorAll('.step');
         const idx = parseInt(e.key) - 1;
         if (steps[idx]) {
